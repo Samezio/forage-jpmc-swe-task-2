@@ -37,16 +37,22 @@ class App extends Component<{}, IState> {
       return (<Graph data={this.state.data}/>)
   }
 
+  static DATA_THRESHOLD = 1000;
   /**
    * Get new data from server and update the state with the new data
    */
   getDataFromServer() {
-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
-      // Update the state by creating a new array of data that consists of
-      // Previous data in the state and the new data from server
-      //Turn show graph to 'true' to start showing graph
-      this.setState({ data: [...this.state.data, ...serverResponds], showGraph: true });
-    });
+    let x = 0;
+    const id = setInterval(()=>{
+      DataStreamer.getData((serverResponds: ServerRespond[]) => {
+        //Turn show graph to 'true' to start showing graph
+        this.setState({ data: serverResponds, showGraph: true });
+      });
+      x++;
+      if (x > App.DATA_THRESHOLD) {
+        clearInterval(id);
+      }
+    }, 100)
   }
 
   /**
